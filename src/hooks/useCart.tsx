@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { createContext, ReactNode, SetStateAction, useContext, useState } from 'react';
 import { toast } from 'react-toastify';
 import { api } from '../services/api';
 import { Product, Stock } from '../types';
@@ -51,17 +51,22 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       // If productInCartNewAmount is equal to 1 then it is a new product
       const productInCartNewAmount = (productInCartId !== -1) ? cart[productInCartId].amount + 1 : 1;
       verifyAmount(productInCartNewAmount, productStock.amount);
+
+      let updatedCart: Product[];
+      updatedCart = [];
       
       if (productInCartNewAmount === 1) {
         const updatedProduct = {...product, amount: productInCartNewAmount};
-        setCart([...cart, updatedProduct]);
+        updatedCart = [...cart, updatedProduct];
+        setCart(updatedCart);
+        localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedProduct));
       } else {
-        const updatedCart = [...cart];
+        updatedCart = [...cart];
         updatedCart[productInCartId].amount = productInCartNewAmount;
-        setCart([...updatedCart]);
+        setCart(updatedCart);
       }
-      
-      localStorage.setItem('@RocketShoes:cart', JSON.stringify(cart));
+
+      localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart));
     } catch {
       toast.error('Erro na adição do produto');
     }
@@ -69,17 +74,14 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   const removeProduct = (productId: number) => {
     try {
-      const productInCartId = cart.findIndex((product) => {
-        return product.id === productId;
-      })      
+      const productInCartId = cart.findIndex(product => product.id === productId)      
       
       if (productInCartId !== -1) {
         let updatedCart = [...cart];
         updatedCart = updatedCart.filter(product => product.id !== productId);
-        setCart([...updatedCart]);
-      } else { throw 'Produto inexistente' }
-      
-      localStorage.setItem('@RocketShoes:cart', JSON.stringify(cart));
+        setCart(updatedCart);
+        localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart));
+      } else { throw Error(); }
     } catch {
       toast.error('Erro na remoção do produto');
     }

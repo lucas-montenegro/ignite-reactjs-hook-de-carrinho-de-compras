@@ -36,8 +36,6 @@ const Home = (): JSX.Element => {
         return response.data;
       })
 
-      console.log(data);
-
       const dataWithFormattedPrice = data.map((product: Product) => {
         return {
           ...product, 

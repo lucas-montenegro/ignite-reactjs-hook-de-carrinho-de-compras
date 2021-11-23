@@ -42,16 +42,15 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
   const addProduct = async (productId: number) => {
     try {
       const product = await api.get('/products/' + productId).then(response => response.data);
-      const productAmount = await api.get('/stock/' + productId).then(response => response.data);
+      const productStock = await api.get('/stock/' + productId).then(response => response.data);
 
       const productInCartId = cart.findIndex((product) => {
         return product.id === productId;
       })
 
-      // If productInCartNewAmount is equal to 0 then it is a new product
+      // If productInCartNewAmount is equal to 1 then it is a new product
       const productInCartNewAmount = (productInCartId !== -1) ? cart[productInCartId].amount + 1 : 1;
-      verifyAmount(productInCartNewAmount, productAmount.amount);
-      
+      verifyAmount(productInCartNewAmount, productStock.amount);
       
       if (productInCartNewAmount === 1) {
         const updatedProduct = {...product, amount: productInCartNewAmount};
@@ -74,7 +73,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
         return product.id === productId;
       })      
       
-      if (productInCartId !== 1) {
+      if (productInCartId !== -1) {
         let updatedCart = [...cart];
         updatedCart = updatedCart.filter(product => product.id !== productId);
         setCart([...updatedCart]);
